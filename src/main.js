@@ -22,10 +22,20 @@ export class processMain{
         
     }
 
-    createProject(options){
+    async createProject(options){
         options = {
             ...options,
             targetDirectory: options.targetDirectory || process.cwd(),
         }
+
+        const templateDir = path.resolve(__dirname, '../templates', options.component_name.toLowerCase());
+        options.templateDirectory = templateDir;
+
+        try{
+            await access(templateDir)
+        } catch(error){
+
+        }
+
     }
 };
