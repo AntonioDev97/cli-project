@@ -34,7 +34,7 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
         generate: args['--generate'] || false,
 
         project: args['--project'] || false,
-        endPoint: args['--endPoint'] || false,
+        endPoint: args['--endpoint'] || false,
         controller: args['--controller'] || false,
         model: args['--model'] || false,
         component_name:args._[0] || false,
@@ -46,6 +46,9 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
 };
 
 const promptForMissingOptions = async(options) => {
+
+    if(!options.generate && options.component_name)
+        return options;
 
     const questions = [];
     if(!options.generate)

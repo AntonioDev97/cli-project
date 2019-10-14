@@ -13,11 +13,19 @@ const copy = promisify(ncp);
 export class processMain{
 
     constructor(options){
-        if(!options.generate)
-            return console.log('%s Please we only have an option -g or --generate', chalk.yellow.bold('INFO'))
+        
+        if(!options.generate && (!options.project || !options.endPoint || !options.controller || !options.model) && options.component_name)
+            return console.log(`%s Invalid option \n Please we only have an option -g or --generate or use simple 'qatar' command`, chalk.yellow.bold('INFO'))
 
         
         return console.log('%s Ok todo listo!', chalk.green.bold('DONE'));
         
+    }
+
+    createProject(options){
+        options = {
+            ...options,
+            targetDirectory: options.targetDirectory || process.cwd(),
+        }
     }
 };
