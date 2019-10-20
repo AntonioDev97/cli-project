@@ -83,6 +83,7 @@ const promptForMissingOptions = async(options) => {
     options = {
         ...options,
         generate: answers.qa_one == 'generate' ? true : false || options.generate,
+        project: answers.component == 'project' ? true : false || options.project,
         endPoint: answers.component =='endPoint' ? true : false || options.endPoint,
         controller: answers.component =='controller' ? true : false || options.controller,
         model: answers.component == 'model' ? true : false || options.model,
