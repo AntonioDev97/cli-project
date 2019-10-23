@@ -13,56 +13,88 @@ const copy = promisify(ncp);
 export class processMain{
 
     constructor(options){
+
+        this.initMain(options);
         
-        if(!options.generate && (!options.project || !options.endPoint || !options.controller || !options.model) && options.component_name)
-            return console.log(`%s Invalid option \n Please we only have an option -g or --generate or use simple 'qatar' command`, chalk.yellow.bold('INFO'))
-
-        if(options.project)
-            this.createProject(options);
-
-        if(options.endPoint)
-            this.createEndPoint(options);
-        
-        
-        return console.log('%s Ok todo listo!', chalk.green.bold('DONE'));
-        
-    }
-
-    async createProject(options){
-        options = {
-            ...options,
-            targetDirectory: options.targetDirectory || process.cwd(),
-        }
-
-        const templateDir = path.resolve(__dirname, '../templates', options.component_name.toLowerCase());
-        options.templateDirectory = templateDir;
-
-        try{
-            await access(templateDir, fs.constants.R_OK)
-        } catch(error){
-            console.error(`%s Invalid template name ${templateDir} ${error}`, chalk.red.bold('ERROR'));
+        if(!options.generate && !options.component && options.component_name){
+            console.log(`%s Invalid option \n Please we only have an option -g or --generate or use simple 'qatar' command`, chalk.yellow.bold('INFO'));
             process.exit(1);
         }
 
+        switch(options.component){
+            case 'module':
+                this.createModule(options);
+            break;
+            case 'endPoint':
+                this.createEndPoint(options);
+            break;
+            default:
+                console.error(`%s Invalid component. Please try again`, chalk.red.bold('ERROR'));
+                process.exit(1);
+            break;
+        }    
+        
+    }
+
+    async initMain(options){
+        try{
+            options.templateDirectory = path.resolve(__dirname, '../templates', options.component.toLowerCase());
+            options.route ? options.targetDirectory = process.cwd() + options.route : options.targetDirectory = process.cwd();
+
+            await access(options.templateDirectory, fs.constants.R_OK)
+        } catch(error){
+            console.error(`%s Invalid template name ${options.templateDirectory} ${error}`, chalk.red.bold('ERROR'));
+            process.exit(1);
+        }
+    }
+
+    async createModule(options){
+
         const task = new Listr([
             {
-                title: 'Copy Project Files',
+                title: 'Create New Module Folder',
+                task: () => this.createDirectory(options)
+            },
+            {
+                title: 'Copy Module Files',
                 task: () => this.copyTemplateFiles(options)
             }
         ]);
 
+        try{
         await task.run();
+        } catch(err){
+            console.error('%s ' + err.message, chalk.red.bold("ERROR"));
+            process.exit(1);
+        }
 
         console.log('%s Project Ready', chalk.green.bold('DONE'));
         return true;
     }
 
     createEndPoint(options){
+
+
+        switch(options.endPoint){
+            case 'GET':
+                console.log("Get Method Cretaed Successfully");
+            break; 
+            default:
+                console.log("default case entry");
+            break;
+        }
         
     }
 
+    async createDirectory(options){
+        if(fs.existsSync(options.component_name))
+            throw new Error(`Directory "${options.component_name}" already exists verify and try again.`, chalk.red.bold("ERROR"));
+        
+        return fs.mkdirSync(`${options.targetDirectory}/${options.component_name}`);       
+    }
+
     copyTemplateFiles(options){
-        return copy(options.templateDirectory, options.targetDirectory, {
+        return copy(options.templateDirectory, `${options.targetDirectory}/${options.component_name}`, {
             clobber: false
         });
     }

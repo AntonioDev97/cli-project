@@ -9,14 +9,14 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
             '--generate': Boolean,
             '-g': '--generate',
 
-            '--project': Boolean,
+            '--module': Boolean,
             '--endpoint': Boolean,
             '--controller': Boolean,
             '--model': Boolean,
-            '-p': '--project',
+            '-m': '--module',
             '-e': '--endpoint',
             '-c' : '--controller',
-            '-m': '--model',
+            '-o': '--model',
 
             '--yes': Boolean,
             '--install': Boolean,
@@ -30,16 +30,16 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
         process.exit(1);
     }
 
+    
+
     return {
         generate: args['--generate'] || false,
-
-        project: args['--project'] || false,
-        endPoint: args['--endpoint'] || false,
-        controller: args['--controller'] || false,
-        model: args['--model'] || false,
+        component: args['--model'] ? 'model': false|| 
+                   args['--endpoint'] ? 'endPoint': false || 
+                   args['--controller'] ? 'controller': false || 
+                   args['--module'] ? 'module': false || false,
         component_name:args._[0] || false,
         route: args._[1] || false,
-
         skipPrompts: args['--yes'] || false,
         runInstall: args['--install'] || false,
     };
@@ -53,42 +53,53 @@ const promptForMissingOptions = async(options) => {
     const questions = [];
     if(!options.generate)
         questions.push({
-            type: 'checkbox',
+            type: 'list',
             name: 'qa_one',
             message: 'Please choose an option!',
             choices: ['generate'],
             default: 'generate'
         });
     
-    if(!options.project && !options.endPoint && !options.controller && !options.model){
+    if(!options.component){
         questions.push({
             type: 'list',
             name: 'component',
             message: 'Please choose one option',
-            choices: ['project', 'endPoint','controller','model'],
+            choices: ['module', 'endPoint','controller','model'],
         });
     }
 
-    if(!options.component_name){
-        questions.push({
-            type: 'input',
-            name: 'name',
-            message: 'Please write name of component',
-            validate: (input) => input.length > 2
-        });
-    }
-    
-    const answers = await inquirer.prompt(questions);
-    
+    let answers = await inquirer.prompt(questions);
+                
     options = {
         ...options,
-        generate: answers.qa_one == 'generate' ? true : false || options.generate,
-        project: answers.component == 'project' ? true : false || options.project,
-        endPoint: answers.component =='endPoint' ? true : false || options.endPoint,
-        controller: answers.component =='controller' ? true : false || options.controller,
-        model: answers.component == 'model' ? true : false || options.model,
-        component_name: answers.name || options.component_name,
+        component: answers.component || options.component, 
     }
+
+    const level2 = [];
+    if(options.endPoint)
+    level2.push({
+        type: 'list',
+        name: 'methods',
+        message: 'Select the method end point',
+        choices: ['GET','POST','PUT','DELETE','OPTIONS','HEAD']
+    });
+
+    if(!options.component_name)
+    level2.push({
+        type: 'input',
+        name: 'name',
+        message: `Please write name of ${options.component}`,
+        validate: (input) => input.length > 2
+    });
+
+    answers = await inquirer.prompt(level2);
+
+    options = {
+        ...options,
+        endPoint: options.endPoint ? answers.methods : options.endPoint || false,
+        component_name: answers.name || options.component_name,
+    };
 
     return options;
 };
