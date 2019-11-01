@@ -10,6 +10,7 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
             '-g': '--generate',
 
             '--module': Boolean,
+            '--section': Boolean,
             '--endpoint': Boolean,
             '--controller': Boolean,
             '--model': Boolean,
@@ -17,6 +18,7 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
             '-e': '--endpoint',
             '-c' : '--controller',
             '-o': '--model',
+            '-s': '--section',
 
             '--yes': Boolean,
             '--install': Boolean,
@@ -47,7 +49,7 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
 
 const promptForMissingOptions = async(options) => {
 
-    if(!options.generate && options.component_name)
+    if(options.generate && options.component_name)
         return options;
 
     const questions = [];

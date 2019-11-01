@@ -25,8 +25,8 @@ export class processMain{
             case 'module':
                 this.createModule(options);
             break;
-            case 'endPoint':
-                this.createEndPoint(options);
+            case 'section':
+                this.createSection(options);
             break;
             default:
                 console.error(`%s Invalid component. Please try again`, chalk.red.bold('ERROR'));
@@ -72,7 +72,7 @@ export class processMain{
         return true;
     }
 
-    createEndPoint(options){
+    createSection(options){
 
 
         switch(options.endPoint){
