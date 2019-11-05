@@ -10,7 +10,6 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
             '-g': '--generate',
 
             '--module': Boolean,
-            '--section': Boolean,
             '--endpoint': Boolean,
             '--controller': Boolean,
             '--model': Boolean,
@@ -18,7 +17,6 @@ const parseArgumentsIntoOptions = (rawArgs)=>{
             '-e': '--endpoint',
             '-c' : '--controller',
             '-o': '--model',
-            '-s': '--section',
 
             '--yes': Boolean,
             '--install': Boolean,
@@ -79,27 +77,27 @@ const promptForMissingOptions = async(options) => {
     }
 
     const level2 = [];
-    if(options.endPoint)
-    level2.push({
-        type: 'list',
-        name: 'methods',
-        message: 'Select the method end point',
-        choices: ['GET','POST','PUT','DELETE','OPTIONS','HEAD']
-    });
+    if(options.component == "endPoint" || options.component == "controller")
+        level2.push({
+            type: 'checkbox',
+            name: 'methods',
+            message: 'Select the method end point',
+            choices: ['GET','POST','PUT','DELETE','OPTIONS','HEAD']
+        });
 
     if(!options.component_name)
-    level2.push({
-        type: 'input',
-        name: 'name',
-        message: `Please write name of ${options.component}`,
-        validate: (input) => input.length > 2
-    });
+        level2.push({
+            type: 'input',
+            name: 'name',
+            message: `Please write name of ${options.component}`,
+            validate: (input) => input.length > 2
+        });
 
     answers = await inquirer.prompt(level2);
 
     options = {
         ...options,
-        endPoint: options.endPoint ? answers.methods : options.endPoint || false,
+        endPoint: answers.methods || false,
         component_name: answers.name || options.component_name,
     };
 
@@ -109,6 +107,6 @@ const promptForMissingOptions = async(options) => {
 export const cli = async(args)=>{
     let options = parseArgumentsIntoOptions(args);
     options = await promptForMissingOptions(options);
-    console.log(options);
+    //console.log(options);
     new processMain(options);
 };
